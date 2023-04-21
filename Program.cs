@@ -57,13 +57,20 @@ namespace net_ef_videogame
             Console.WriteLine("\r\nWhich operation would you like to do?");
             foreach (Operation operationName in Enum.GetValues(typeof(Operation)))
             {
-                Console.WriteLine($" - {operationName}");
+                Console.WriteLine($" - {operationName.ToString().Replace("_", " ")}");
             }
             Console.Write("\r\noperation: ");
             Operation operation = UConsole.AskStringToCast<Operation>(
                 (input) =>
                 {
-                    return Enum.Parse<Operation>(input);
+                    try
+                    {
+                        return Enum.Parse<Operation>(input.Replace(" ", "_"));
+                    }
+                    catch
+                    {
+                        return Enum.Parse<Operation>(input);
+                    }
                 });
             Console.WriteLine();
 
@@ -95,18 +102,19 @@ namespace net_ef_videogame
                 case Operation.INSERT_HOUSE:
                     {
                         Console.Write("Insert a name (max 50 chars!): ");
-
-                        //Attempt insertion and store result
-                        bool success = SoftwareHousesManager.Insert(UConsole.AskStringToCast((input) =>
+                        string softwareHouseName = UConsole.AskStringToCast((input) =>
                         {
                             if (input.Length > 50)
                                 throw new Exception();
                             return input;
-                        }));
+                        });
+
+                        //Attempt insertion and store result
+                        bool success = SoftwareHousesManager.Insert(softwareHouseName);
 
                         Console.WriteLine(
                             success ?
-                            "Software House added."
+                            $"Software House '{softwareHouseName}' added."
                             : "Error!"
                             );
                     }
@@ -126,18 +134,19 @@ namespace net_ef_videogame
                         });
 
                         Console.Write("Insert a name (max 50 chars!): ");
-
-                        //Attempt insertion and store result
-                        bool success = VideogamesManager.Insert(softwareHouse, UConsole.AskStringToCast((input) =>
+                        string videogameName = UConsole.AskStringToCast((input) =>
                         {
                             if (input.Length > 50)
                                 throw new Exception();
                             return input;
-                        }));
+                        });
+
+                        //Attempt insertion and store result
+                        bool success = VideogamesManager.Insert(softwareHouse, videogameName);
 
                         Console.WriteLine(
                             success ?
-                            "Videogame added."
+                            $"Videogame '{videogameName}' by '{softwareHouse.Name}' added."
                             : "Error!"
                             );
                     }
