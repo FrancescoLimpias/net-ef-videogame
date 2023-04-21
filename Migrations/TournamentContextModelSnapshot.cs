@@ -21,7 +21,7 @@ namespace net_ef_videogame.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("net_ef_videogame.Videogame", b =>
+            modelBuilder.Entity("net_ef_videogame.SoftwareHouse", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,7 +36,41 @@ namespace net_ef_videogame.Migrations
 
                     b.HasKey("Id");
 
+                    b.ToTable("SoftwareHouses");
+                });
+
+            modelBuilder.Entity("net_ef_videogame.Videogame", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<long>("SoftwareHouseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SoftwareHouseId");
+
                     b.ToTable("Videogames");
+                });
+
+            modelBuilder.Entity("net_ef_videogame.Videogame", b =>
+                {
+                    b.HasOne("net_ef_videogame.SoftwareHouse", "SoftwareHouse")
+                        .WithMany()
+                        .HasForeignKey("SoftwareHouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SoftwareHouse");
                 });
 #pragma warning restore 612, 618
         }
