@@ -173,6 +173,34 @@ namespace net_ef_videogame
                         Console.WriteLine("No videogames found...");
                     }
                     break;
+                case Operation.SEARCH_BY_HOUSE:
+                    {
+                        Console.Write("Insert an ID: ");
+                        SoftwareHouse? softwareHouse = SoftwareHousesManager.SearchById(UConsole.AskLong());
+
+                        if (softwareHouse == null)
+                        {
+                            Console.WriteLine("[NOT FOUND] No software house for the given ID");
+                            break;
+                        }
+
+                        //explicitly load Videogames
+                        DB.Entry(softwareHouse).Collection(softwareHouse => softwareHouse.Videogames).Load();
+
+                        if (softwareHouse.Videogames.Count > 0)
+                        {
+                            Console.WriteLine($"\r\n{softwareHouse.Name}");
+                            Console.WriteLine("ID - VIDEOGAME");
+                            foreach (Videogame game in softwareHouse.Videogames)
+                                Console.WriteLine($" {game.Id} - {game.Name}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No videogames found...");
+                        }
+
+                    }
+                    break;
                 case Operation.DELETE:
                     Console.Write("Insert an EXISTING ID: ");
 
