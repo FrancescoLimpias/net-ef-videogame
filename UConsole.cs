@@ -5,51 +5,59 @@
      */
     internal static class UConsole
     {
+
         /* CURSOR LOCKING MECHANISM
          * (private, it's an internal mechanic)
          */
-        private static int lockStack = 0;
-        private static (int left, int top)? lockedCursorPosition = null;
+        protected class InputFieldLock : IDisposable
+        {
+            private static int FieldLength { get; set; }
+            private static (int left, int top)? cursorStartPosition = null;
+            private static int lockStack = 0;
 
-        private static bool IsCursorLocked()
-        {
-            return lockedCursorPosition != null;
-        }
-        private static void LockCursor()
-        {
-            if (lockStack++ == 0)
+            public InputFieldLock(int fieldLength = 100)
             {
-                lockedCursorPosition = Console.GetCursorPosition();
+                FieldLength = fieldLength;
+
+                if (lockStack++ == 0)
+                {
+                    cursorStartPosition = Console.GetCursorPosition();
+                }
+
+                Clear();
             }
-        }
-        private static void UnlockCursor()
-        {
-            if (--lockStack == 0)
+
+            public static void Clear()
             {
-                lockedCursorPosition = null;
+                Console.SetCursorPosition(cursorStartPosition.Value.left, cursorStartPosition.Value.top);
+                Console.Write(new string(' ', FieldLength));
+                Console.SetCursorPosition(cursorStartPosition.Value.left, cursorStartPosition.Value.top);
             }
-        }
-        private static void ResumeCursorPosition()
-        {
-            Console.SetCursorPosition(lockedCursorPosition.Value.left, lockedCursorPosition.Value.top);
-            Console.Write(new string(' ', 100));
-            Console.SetCursorPosition(lockedCursorPosition.Value.left, lockedCursorPosition.Value.top);
+
+            public static void UnlockCursor()
+            {
+                if (--lockStack == 0)
+                {
+                    cursorStartPosition = null;
+                }
+            }
+            public void Dispose()
+            {
+                UnlockCursor();
+            }
         }
 
         //ASK FOR INPUT STRING
         internal static string AskString()
         {
             //Lock cursor
-            LockCursor();
-            ResumeCursorPosition();
+            using InputFieldLock IFL = new();
 
             //Ask for string and check input
             string? input = Console.ReadLine();
             if (string.IsNullOrWhiteSpace(input))
                 return AskString();
 
-            //Unlock cursor and return
-            UnlockCursor();
             return input;
         }
 
@@ -57,7 +65,7 @@
         internal static T AskStringToCast<T>(Func<string, T> CastingMethod)
         {
             //Lock cursor
-            LockCursor();
+            using InputFieldLock IFL = new();
 
             string input = AskString();
             T result;
@@ -70,7 +78,6 @@
                 result = AskStringToCast(CastingMethod);
             }
 
-            UnlockCursor();
             return result;
         }
 

@@ -80,7 +80,6 @@ namespace net_ef_videogame
             {
                 case Operation.LIST:
                     {
-                        Console.WriteLine("Videogames list");
                         List<Videogame> videogames = VideogamesManager.List();
 
                         //explicitly load related software houses
@@ -89,7 +88,7 @@ namespace net_ef_videogame
 
                         if (videogames.Count > 0)
                         {
-                            Console.WriteLine("\r\nID - VIDEOGAME - SOFTWARE HOUSE");
+                            Console.WriteLine("ID - VIDEOGAME - SOFTWARE HOUSE");
                             foreach (Videogame game in videogames)
                                 Console.WriteLine($" {game.Id} - {game.Name} - {game.SoftwareHouse.Name}");
                         }
@@ -173,9 +172,9 @@ namespace net_ef_videogame
 
                     if (foundVideogames.Count > 0)
                     {
-                        Console.WriteLine("\r\nID - VIDEOGAME");
+                        Console.WriteLine("\r\n ID - VIDEOGAME");
                         foreach (Videogame game in foundVideogames)
-                            Console.WriteLine($" {game.Id} - {game.Name}");
+                            Console.WriteLine($"  {game.Id} - {game.Name}");
                     }
                     else
                     {
