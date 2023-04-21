@@ -14,6 +14,7 @@ namespace net_ef_videogame
          */
         [Key] public long Id { get; set; }
         [StringLength(50)] public string Name { get; set; }
+        List<Videogame> Videogames { get; set; }
 
         //CONSTRUCTOR
         public SoftwareHouse(string name)
