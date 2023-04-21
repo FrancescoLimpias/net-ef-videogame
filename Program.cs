@@ -12,11 +12,16 @@ namespace net_ef_videogame
         enum Operation
         {
             LIST,
-            INSERTGAME,
-            INSERTHOUSE,
-            SEARCHID,
-            SEARCHNAME,
+
+            INSERT_GAME,
+            INSERT_HOUSE,
+
+            SEARCH_BY_ID,
+            SEARCH_BY_NAME,
+            SEARCH_BY_HOUSE,
+
             DELETE,
+
             EXIT
         }
 
@@ -67,22 +72,27 @@ namespace net_ef_videogame
             switch (operation)
             {
                 case Operation.LIST:
-
-                    Console.WriteLine("Videogames list");
-                    List<Videogame> videogames = VideogamesManager.List();
-
-                    if (videogames.Count > 0)
                     {
-                        Console.WriteLine("\r\nID - VIDEOGAME");
-                        foreach (Videogame game in videogames)
-                            Console.WriteLine($" {game.Id} - {game.Name}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("No videogames found...");
+                        Console.WriteLine("Videogames list");
+                        List<Videogame> videogames = VideogamesManager.List();
+
+                        //explicitly load related software houses
+                        foreach (Videogame videogame in videogames)
+                            DB.Entry(videogame).Reference(game => game.SoftwareHouse).Load();
+
+                        if (videogames.Count > 0)
+                        {
+                            Console.WriteLine("\r\nID - VIDEOGAME - SOFTWARE HOUSE");
+                            foreach (Videogame game in videogames)
+                                Console.WriteLine($" {game.Id} - {game.Name} - {game.SoftwareHouse.Name}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No videogames found...");
+                        }
                     }
                     break;
-                case Operation.INSERTHOUSE:
+                case Operation.INSERT_HOUSE:
                     {
                         Console.Write("Insert a name (max 50 chars!): ");
 
@@ -101,11 +111,11 @@ namespace net_ef_videogame
                             );
                     }
                     break;
-                case Operation.INSERTGAME:
+                case Operation.INSERT_GAME:
                     {
                         //Ask for ID and look if ID is EXISTENT -> CONVERT to SOFTWARE HOUSE
                         Console.Write("Insert the ID of an EXISTING software house: ");
-                        SoftwareHouse softwareHouse = UConsole.AskStringToCast<SoftwareHouse>((input) =>
+                        SoftwareHouse softwareHouse = UConsole.AskStringToCast((input) =>
                         {
                             SoftwareHouse? softwareHouse = SoftwareHousesManager.SearchById(Convert.ToInt64(input));
                             /* Keeps asking for a ID until 
@@ -132,21 +142,22 @@ namespace net_ef_videogame
                             );
                     }
                     break;
-                case Operation.SEARCHID:
-
-                    Console.Write("Insert an ID: ");
-                    Videogame? videogame = VideogamesManager.SearchById(UConsole.AskLong());
-
-                    if (videogame != null)
+                case Operation.SEARCH_BY_ID:
                     {
-                        Console.WriteLine($"[FOUND] Name: {videogame.Name}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("[NOT FOUND] No videogame for the given ID");
+                        Console.Write("Insert an ID: ");
+                        Videogame? videogame = VideogamesManager.SearchById(UConsole.AskLong());
+
+                        if (videogame != null)
+                        {
+                            Console.WriteLine($"[FOUND] Name: {videogame.Name}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("[NOT FOUND] No videogame for the given ID");
+                        }
                     }
                     break;
-                case Operation.SEARCHNAME:
+                case Operation.SEARCH_BY_NAME:
 
                     Console.Write("Insert a name: ");
                     List<Videogame> foundVideogames = VideogamesManager.SearchByName(UConsole.AskString());
