@@ -24,30 +24,18 @@ namespace net_ef_videogame
 
         internal static List<Videogame> SearchByName(string name)
         {
-            List<Videogame> videogames = new List<Videogame>();
-
-            string query = "SELECT * FROM videogames WHERE UPPER(name) LIKE @Name";
-
-            SqlCommand command = new SqlCommand(query, Program.SQL);
-            command.Parameters.AddWithValue("@Name", $"%{name.ToUpper()}%");
-
-            using SqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                videogames.Add(new Videogame(reader.GetInt64(0), reader.GetString(1)));
-            }
-
-            return videogames;
+            return DB.Videogames.Where(videogame => videogame.Name.Contains(name)).ToList();
         }
 
         internal static bool Delete(long id)
         {
-            string query = "DELETE FROM videogames WHERE id = @Id";
+            Videogame? videogameToDelete = SearchById(id);
 
-            using SqlCommand command = new SqlCommand(query, Program.SQL);
-            command.Parameters.AddWithValue("@Id", id);
+            if (videogameToDelete == null)
+                return false;
 
-            return command.ExecuteNonQuery() > 0;
+            DB.Videogames.Remove(videogameToDelete);
+            return DB.SaveChanges() == 1;
         }
 
         internal static List<Videogame> List()
