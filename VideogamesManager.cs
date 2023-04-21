@@ -8,16 +8,16 @@ namespace net_ef_videogame
         //Connection (just a ref to Program.DB)
         internal static TournamentContext DB = Program.DB;
 
-        internal static bool Insert(string videogameName)
+        internal static bool Insert(SoftwareHouse softwareHouse, string videogameName)
         {
-            Videogame newVideogame = new(videogameName);
+            Videogame newVideogame = new(softwareHouse, videogameName);
 
             DB.Videogames.Add(newVideogame);
 
             return DB.SaveChanges() == 1;
         }
 
-        internal static Videogame? SearchById(long id)
+        internal static Videogame SearchById(long id)
         {
             return DB.Videogames.Find(id);
         }
@@ -29,7 +29,7 @@ namespace net_ef_videogame
 
         internal static bool Delete(long id)
         {
-            Videogame? videogameToDelete = SearchById(id);
+            Videogame videogameToDelete = SearchById(id);
 
             if (videogameToDelete == null)
                 return false;

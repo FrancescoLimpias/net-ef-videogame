@@ -12,7 +12,8 @@ namespace net_ef_videogame
         enum Operation
         {
             LIST,
-            INSERT,
+            INSERTGAME,
+            INSERTHOUSE,
             SEARCHID,
             SEARCHNAME,
             DELETE,
@@ -81,24 +82,55 @@ namespace net_ef_videogame
                         Console.WriteLine("No videogames found...");
                     }
                     break;
-                case Operation.INSERT:
-
-                    Console.Write("Insert a name (max 50 chars!): ");
-
-                    //Attempt insertion and store result
-                    bool success = VideogamesManager.Insert(UConsole.AskStringToCast((input) =>
+                case Operation.INSERTHOUSE:
                     {
-                        if (input.Length > 50)
-                            throw new Exception();
-                        return input;
-                    }));
+                        Console.Write("Insert a name (max 50 chars!): ");
 
-                    Console.WriteLine(
-                        success ?
-                        "Videogame added."
-                        : "Error!"
-                        );
+                        //Attempt insertion and store result
+                        bool success = SoftwareHousesManager.Insert(UConsole.AskStringToCast((input) =>
+                        {
+                            if (input.Length > 50)
+                                throw new Exception();
+                            return input;
+                        }));
 
+                        Console.WriteLine(
+                            success ?
+                            "Software House added."
+                            : "Error!"
+                            );
+                    }
+                    break;
+                case Operation.INSERTGAME:
+                    {
+                        //Ask for ID and look if ID is EXISTENT -> CONVERT to SOFTWARE HOUSE
+                        Console.Write("Insert the ID of an EXISTING software house: ");
+                        SoftwareHouse softwareHouse = UConsole.AskStringToCast<SoftwareHouse>((input) =>
+                        {
+                            SoftwareHouse? softwareHouse = SoftwareHousesManager.SearchById(Convert.ToInt64(input));
+                            /* Keeps asking for a ID until 
+                             * 1) given input is convertible to long
+                             * 2) long is an existent ID
+                             */
+                            return softwareHouse == null ? throw new NullReferenceException() : softwareHouse;
+                        });
+
+                        Console.Write("Insert a name (max 50 chars!): ");
+
+                        //Attempt insertion and store result
+                        bool success = VideogamesManager.Insert(softwareHouse, UConsole.AskStringToCast((input) =>
+                        {
+                            if (input.Length > 50)
+                                throw new Exception();
+                            return input;
+                        }));
+
+                        Console.WriteLine(
+                            success ?
+                            "Videogame added."
+                            : "Error!"
+                            );
+                    }
                     break;
                 case Operation.SEARCHID:
 
