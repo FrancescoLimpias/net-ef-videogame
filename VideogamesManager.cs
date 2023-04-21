@@ -40,22 +40,7 @@ namespace net_ef_videogame
 
         internal static List<Videogame> List()
         {
-            List<Videogame> videogames = new();
-            string selectionQuery = "SELECT * FROM videogames";
-
-            //Build SQL command
-            using SqlCommand command = Program.SQL.CreateCommand();
-            command.Connection = Program.SQL;
-            command.CommandText = selectionQuery;
-
-            using SqlDataReader reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                videogames.Add(new Videogame(reader.GetInt64(0), reader.GetString(1)));
-            }
-
-            return videogames;
+            return DB.Videogames.ToList();
         }
     }
 }
