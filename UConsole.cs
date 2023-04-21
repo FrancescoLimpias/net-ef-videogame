@@ -9,13 +9,13 @@
         /* CURSOR LOCKING MECHANISM
          * (private, it's an internal mechanic)
          */
-        protected class InputFieldLock : IDisposable
+        internal class InputField : IDisposable
         {
             private static int FieldLength { get; set; }
             private static (int left, int top)? cursorStartPosition = null;
             private static int lockStack = 0;
 
-            public InputFieldLock(int fieldLength = 100)
+            public InputField(int fieldLength = 100)
             {
                 FieldLength = fieldLength;
 
@@ -27,14 +27,21 @@
                 Clear();
             }
 
-            public static void Clear()
+            public void Fill(string text)
+            {
+                Clear();
+                Console.SetCursorPosition(cursorStartPosition.Value.left, cursorStartPosition.Value.top);
+                Console.WriteLine(text);
+            }
+
+            public void Clear()
             {
                 Console.SetCursorPosition(cursorStartPosition.Value.left, cursorStartPosition.Value.top);
                 Console.Write(new string(' ', FieldLength));
                 Console.SetCursorPosition(cursorStartPosition.Value.left, cursorStartPosition.Value.top);
             }
 
-            public static void UnlockCursor()
+            public void ReleaseCursor()
             {
                 if (--lockStack == 0)
                 {
@@ -43,7 +50,7 @@
             }
             public void Dispose()
             {
-                UnlockCursor();
+                ReleaseCursor();
             }
         }
 
@@ -51,7 +58,7 @@
         internal static string AskString()
         {
             //Lock cursor
-            using InputFieldLock IFL = new();
+            using InputField IFL = new();
 
             //Ask for string and check input
             string? input = Console.ReadLine();
@@ -62,16 +69,16 @@
         }
 
         //ASK FOR INPUT STRING AND CAST
-        internal static T AskStringToCast<T>(Func<string, T> CastingMethod)
+        internal static T AskStringToCast<T>(Func<string, InputField, T> CastingMethod)
         {
             //Lock cursor
-            using InputFieldLock IFL = new();
+            using InputField IFL = new();
 
             string input = AskString();
             T result;
             try
             {
-                result = CastingMethod(input);
+                result = CastingMethod(input, IFL);
             }
             catch (Exception)
             {
@@ -79,6 +86,10 @@
             }
 
             return result;
+        }
+        internal static T AskStringToCast<T>(Func<string, T> CastingMethod)
+        {
+            return AskStringToCast<T>((input, inputField) => { return CastingMethod(input); });
         }
 
         //ASK FOR INPUT STRING AND CAST TO ...
