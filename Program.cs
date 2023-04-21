@@ -122,14 +122,18 @@ namespace net_ef_videogame
                     {
                         //Ask for ID and look if ID is EXISTENT -> CONVERT to SOFTWARE HOUSE
                         Console.Write("Insert the ID of an EXISTING software house: ");
-                        SoftwareHouse softwareHouse = UConsole.AskStringToCast((input) =>
+                        SoftwareHouse softwareHouse = UConsole.AskStringToCast((input, inputField) =>
                         {
                             SoftwareHouse? softwareHouse = SoftwareHousesManager.SearchById(Convert.ToInt64(input));
                             /* Keeps asking for a ID until 
                              * 1) given input is convertible to long
                              * 2) long is an existent ID
                              */
-                            return softwareHouse == null ? throw new NullReferenceException() : softwareHouse;
+                            if (softwareHouse == null)
+                                throw new NullReferenceException();
+
+                            inputField.Fill(softwareHouse.Name);
+                            return softwareHouse;
                         });
 
                         Console.Write("Insert a name (max 50 chars!): ");
@@ -184,7 +188,17 @@ namespace net_ef_videogame
                 case Operation.SEARCH_BY_HOUSE:
                     {
                         Console.Write("Insert an ID: ");
-                        SoftwareHouse? softwareHouse = SoftwareHousesManager.SearchById(UConsole.AskLong());
+                        SoftwareHouse? softwareHouse = UConsole.AskStringToCast((input, inputField) =>
+                        {
+                            SoftwareHouse softwareHouse = SoftwareHousesManager.SearchById(Convert.ToInt64(input));
+
+                            if (softwareHouse == null)
+                                throw new NullReferenceException();
+
+                            inputField.Fill(softwareHouse.Name);
+                            return softwareHouse;
+                        });
+
 
                         if (softwareHouse == null)
                         {
@@ -197,8 +211,7 @@ namespace net_ef_videogame
 
                         if (softwareHouse.Videogames.Count > 0)
                         {
-                            Console.WriteLine($"\r\n{softwareHouse.Name}");
-                            Console.WriteLine("ID - VIDEOGAME");
+                            Console.WriteLine("\r\nID - VIDEOGAME");
                             foreach (Videogame game in softwareHouse.Videogames)
                                 Console.WriteLine($" {game.Id} - {game.Name}");
                         }
@@ -213,18 +226,22 @@ namespace net_ef_videogame
                     Console.Write("Insert an EXISTING ID: ");
 
                     //Ask for ID and look if ID is EXISTENT -> CONVERT to VIDEOGAME
-                    Videogame gameToDelete = UConsole.AskStringToCast<Videogame>((input) =>
+                    Videogame gameToDelete = UConsole.AskStringToCast<Videogame>((input, inputField) =>
                     {
                         Videogame? game = VideogamesManager.SearchById(Convert.ToInt64(input));
                         /* Keeps asking for a ID until 
                          * 1) given input is convertible to long
                          * 2) long is an existent ID
                          */
-                        return game == null ? throw new NullReferenceException() : game;
+                        if (game == null)
+                            throw new NullReferenceException();
+
+                        inputField.Fill(game.Name);
+                        return game;
                     });
 
                     //Ask for CONFIRMATION
-                    Console.Write($"Are you sure you want to delete {gameToDelete.Name}? (yes/no) ");
+                    Console.Write($"Are you sure you want to delete this game? (yes/no) ");
                     bool confirmation = UConsole.AskYesNo();
                     if (confirmation)
                     {
