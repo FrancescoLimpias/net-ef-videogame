@@ -11,6 +11,7 @@ namespace net_ef_videogame
     {
 
         public DbSet<Videogame> Videogames { get; set; }
+        public DbSet<SoftwareHouse> SoftwareHouses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
